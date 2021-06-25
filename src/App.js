@@ -16,32 +16,30 @@ import { createStructuredSelector } from 'reselect';
 class App extends React.Component {
 
 
-unsubscribeFromAuth = null;
+  unsubscribeFromAuth = null;
 
-componentDidMount () {
-  const { setCurrentUser } = this.props;
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
 
-  auth.onAuthStateChanged( async userAuth => {
-    if (userAuth) {
-      const userRef = await createUserProfileDocument(userAuth);
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
 
-
-      userRef.onSnapshot( snapShot => {
-        setCurrentUser({
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({
             id: snapShot.id,
             ...snapShot.data()
+          });
         });
-      });
-      
-    } else {
-      setCurrentUser({userAuth});
-    }
-  } )
-}
+      }
 
-componentWillUnmount() {
-  this.unsubscribeFromAuth();
-}
+      setCurrentUser(userAuth);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth();
+  }
 
 
   render (){
